@@ -47,11 +47,11 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
     waveformCombo->addItem ("Square", 4);
     waveformCombo->addItem ("Loaded", 5);
     waveformCombo->setSelectedId (1);
-    waveformCombo->setBounds (margin, 55, w, 24);
+    waveformCombo->setBounds (margin, 55, w, 28);
     waveformCombo->addListener (this);
     addAndMakeVisible (waveformCombo);
 
-    auto rowY = 95;
+    auto rowY = 115;
     auto colW = (w - 10) / 2;
 
     pitchStartSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
