@@ -236,6 +236,10 @@ void KikAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    float outputPeak = 0.0f;
+
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
@@ -267,9 +271,16 @@ void KikAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
         for (int channel = 0; channel < totalNumOutputChannels; ++channel)
         {
             auto* channelData = buffer.getWritePointer (channel);
-            for (int i = 0; i < numSamples; ++i) channelData[i] = tempBlock[i];
+            for (int i = 0; i < numSamples; ++i)
+            {
+                channelData[i] = tempBlock[i];
+                float absVal = std::abs (channelData[i]);
+                if (absVal > outputPeak) outputPeak = absVal;
+            }
         }
     }
+    
+    if (outputPeak > peakLevel) peakLevel = outputPeak;
 }
 
 bool KikAudioProcessor::hasEditor() const { return true; }
