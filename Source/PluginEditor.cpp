@@ -54,15 +54,16 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
     auto rowY = 115;
     auto colW = (w - 10) / 2;
 
-    pitchStartSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    pitchStartSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight);
     pitchStartSlider->setRange (40, 250);
     pitchStartSlider->setValue (audioProcessor.pitch);
     pitchStartSlider->setBounds (margin, rowY, colW, 28);
+    pitchStartSlider->setTextBoxStyle (juce::Slider::TextBoxRight, true, 50, 18);
     pitchStartSlider->addListener (this);
     addAndMakeVisible (pitchStartSlider);
 
-    auto* pitchLabel = new juce::Label ("pitchLbl", "  PITCH");
-    pitchLabel->setBounds (margin, rowY - 16, colW, 14);
+    auto* pitchLabel = new juce::Label ("pitchLbl", "PITCH");
+    pitchLabel->setBounds (margin, rowY - 16, colW - 50, 14);
     pitchLabel->setFont (juce::FontOptions (11, juce::Font::bold));
     pitchLabel->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (pitchLabel);
@@ -73,15 +74,16 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
     pitchVal->setColour (juce::Label::textColourId, juce::Colours::grey);
     addAndMakeVisible (pitchVal);
 
-    pitchDecaySlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    pitchDecaySlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight);
     pitchDecaySlider->setRange (0.05, 0.5);
     pitchDecaySlider->setValue (audioProcessor.pitchDecay);
     pitchDecaySlider->setBounds (margin + colW + 10, rowY, colW, 28);
+    pitchDecaySlider->setTextBoxStyle (juce::Slider::TextBoxRight, true, 50, 18);
     pitchDecaySlider->addListener (this);
     addAndMakeVisible (pitchDecaySlider);
 
-    auto* pitchDecLabel = new juce::Label ("pitchDecLbl", "  DECAY");
-    pitchDecLabel->setBounds (margin + colW + 10, rowY - 16, colW, 14);
+    auto* pitchDecLabel = new juce::Label ("pitchDecLbl", "DECAY");
+    pitchDecLabel->setBounds (margin + colW + 10, rowY - 16, colW - 50, 14);
     pitchDecLabel->setFont (juce::FontOptions (11, juce::Font::bold));
     pitchDecLabel->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (pitchDecLabel);
@@ -89,52 +91,35 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
     rowY = 165;
     auto qw = (w - 24) / 4;
 
-    ampAttackSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    ampAttackSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxBelow);
     ampAttackSlider->setRange (0, 0.05);
     ampAttackSlider->setValue (audioProcessor.ampAttack);
     ampAttackSlider->setBounds (margin, rowY, qw, 24);
+    ampAttackSlider->setTextBoxStyle (juce::Slider::TextBoxBelow, true, 40, 16);
     ampAttackSlider->addListener (this);
     addAndMakeVisible (ampAttackSlider);
 
-    auto* ampAttackLabel = new juce::Label ("ampAttackLbl", "ATK");
-    ampAttackLabel->setBounds (margin, rowY + 26, qw, 12);
-    ampAttackLabel->setFont (juce::FontOptions (9));
-    ampAttackLabel->setColour (juce::Label::textColourId, juce::Colours::white);
-    ampAttackLabel->setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (ampAttackLabel);
-
-    ampDecaySlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    ampDecaySlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxBelow);
     ampDecaySlider->setRange (0.05, 1.0);
     ampDecaySlider->setValue (audioProcessor.ampDecay);
     ampDecaySlider->setBounds (margin + qw + 6, rowY, qw, 24);
+    ampDecaySlider->setTextBoxStyle (juce::Slider::TextBoxBelow, true, 40, 16);
     ampDecaySlider->addListener (this);
     addAndMakeVisible (ampDecaySlider);
 
-    auto* ampDecLabel = new juce::Label ("ampDecLbl", "DEC");
-    ampDecLabel->setBounds (margin + qw + 6, rowY + 26, qw, 12);
-    ampDecLabel->setFont (juce::FontOptions (9));
-    ampDecLabel->setColour (juce::Label::textColourId, juce::Colours::white);
-    ampDecLabel->setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (ampDecLabel);
-
-    ampSustainSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    ampSustainSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxBelow);
     ampSustainSlider->setRange (0, 1);
     ampSustainSlider->setValue (audioProcessor.ampSustain);
     ampSustainSlider->setBounds (margin + qw * 2 + 12, rowY, qw, 24);
+    ampSustainSlider->setTextBoxStyle (juce::Slider::TextBoxBelow, true, 40, 16);
     ampSustainSlider->addListener (this);
     addAndMakeVisible (ampSustainSlider);
 
-    auto* ampSusLabel = new juce::Label ("ampSusLbl", "SUS");
-    ampSusLabel->setBounds (margin + qw * 2 + 12, rowY + 26, qw, 12);
-    ampSusLabel->setFont (juce::FontOptions (9));
-    ampSusLabel->setColour (juce::Label::textColourId, juce::Colours::white);
-    ampSusLabel->setJustificationType (juce::Justification::centred);
-    addAndMakeVisible (ampSusLabel);
-
-    ampReleaseSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    ampReleaseSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxBelow);
     ampReleaseSlider->setRange (0.05, 1.0);
     ampReleaseSlider->setValue (audioProcessor.ampRelease);
     ampReleaseSlider->setBounds (margin + qw * 3 + 18, rowY, qw, 24);
+    ampReleaseSlider->setTextBoxStyle (juce::Slider::TextBoxBelow, true, 40, 16);
     ampReleaseSlider->addListener (this);
     addAndMakeVisible (ampReleaseSlider);
 
@@ -145,76 +130,81 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
     ampRelLabel->setJustificationType (juce::Justification::centred);
     addAndMakeVisible (ampRelLabel);
 
-    auto* ampTitle = new juce::Label ("ampTitle", "  AMP");
-    ampTitle->setBounds (margin, rowY - 16, w, 14);
+    auto* ampTitle = new juce::Label ("ampTitle", "AMP");
+    ampTitle->setBounds (margin, rowY - 16, w - 150, 14);
     ampTitle->setFont (juce::FontOptions (11, juce::Font::bold));
     ampTitle->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (ampTitle);
 
     rowY = 245;
-    driveSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    driveSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight);
     driveSlider->setRange (0.5, 3);
     driveSlider->setValue (audioProcessor.drive);
     driveSlider->setBounds (margin, rowY, colW, 24);
+    driveSlider->setTextBoxStyle (juce::Slider::TextBoxRight, true, 50, 18);
     driveSlider->addListener (this);
     addAndMakeVisible (driveSlider);
 
-    auto* driveLabel = new juce::Label ("driveLbl", "  DRIVE");
-    driveLabel->setBounds (margin, rowY - 16, colW, 14);
+    auto* driveLabel = new juce::Label ("driveLbl", "DRIVE");
+    driveLabel->setBounds (margin, rowY - 16, colW - 50, 14);
     driveLabel->setFont (juce::FontOptions (11, juce::Font::bold));
     driveLabel->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (driveLabel);
 
-    colorSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    colorSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight);
     colorSlider->setRange (0, 1);
     colorSlider->setValue (audioProcessor.color);
     colorSlider->setBounds (margin + colW + 10, rowY, colW, 24);
+    colorSlider->setTextBoxStyle (juce::Slider::TextBoxRight, true, 50, 18);
     colorSlider->addListener (this);
     addAndMakeVisible (colorSlider);
 
-    auto* colorLabel = new juce::Label ("colorLbl", "  COLOR");
-    colorLabel->setBounds (margin + colW + 10, rowY - 16, colW, 14);
+    auto* colorLabel = new juce::Label ("colorLbl", "COLOR");
+    colorLabel->setBounds (margin + colW + 10, rowY - 16, colW - 50, 14);
     colorLabel->setFont (juce::FontOptions (11, juce::Font::bold));
     colorLabel->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (colorLabel);
 
     rowY = 305;
-    clickSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    clickSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight);
     clickSlider->setRange (0, 1);
     clickSlider->setValue (audioProcessor.click);
     clickSlider->setBounds (margin, rowY, colW, 24);
+    clickSlider->setTextBoxStyle (juce::Slider::TextBoxRight, true, 50, 18);
     clickSlider->addListener (this);
     addAndMakeVisible (clickSlider);
 
-    auto* clickLabel = new juce::Label ("clickLbl", "  CLICK");
-    clickLabel->setBounds (margin, rowY - 16, colW, 14);
+    auto* clickLabel = new juce::Label ("clickLbl", "CLICK");
+    clickLabel->setBounds (margin, rowY - 16, colW - 50, 14);
     clickLabel->setFont (juce::FontOptions (11, juce::Font::bold));
     clickLabel->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (clickLabel);
 
-    depthSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    depthSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight);
     depthSlider->setRange (0, 1);
     depthSlider->setValue (audioProcessor.depth);
     depthSlider->setBounds (margin + colW + 10, rowY, colW, 24);
+    depthSlider->setTextBoxStyle (juce::Slider::TextBoxRight, true, 50, 18);
     depthSlider->addListener (this);
     addAndMakeVisible (depthSlider);
 
-    auto* depthLabel = new juce::Label ("depthLbl", "  DEPTH");
-    depthLabel->setBounds (margin + colW + 10, rowY - 16, colW, 14);
+    auto* depthLabel = new juce::Label ("depthLbl", "DEPTH");
+    depthLabel->setBounds (margin + colW + 10, rowY - 16, colW - 50, 14);
     depthLabel->setFont (juce::FontOptions (11, juce::Font::bold));
     depthLabel->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (depthLabel);
 
     rowY = 365;
-    gainSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox);
+    gainSlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxRight);
     gainSlider->setRange (0, 1.5);
     gainSlider->setValue (audioProcessor.gain);
     gainSlider->setBounds (margin, rowY, w, 24);
+    gainSlider->setTextBoxStyle (juce::Slider::TextBoxRight, true, 60, 18);
     gainSlider->addListener (this);
     addAndMakeVisible (gainSlider);
 
-    auto* gainLabel = new juce::Label ("gainLbl", "  GAIN");
-    gainLabel->setBounds (margin, rowY - 16, w, 14);
+    auto* gainLabel = new juce::Label ("gainLbl", "GAIN");
+    gainLabel->setBounds (margin, rowY - 16, w - 60, 14);
     gainLabel->setFont (juce::FontOptions (11, juce::Font::bold));
     gainLabel->setColour (juce::Label::textColourId, juce::Colours::white);
     addAndMakeVisible (gainLabel);
