@@ -55,12 +55,24 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
     addAndMakeVisible (pitchStartSlider);
 
     pitchDecaySlider = new juce::Slider (juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::TextBoxBelow);
-    pitchDecaySlider->setRange (0.01, 0.3);
+    pitchDecaySlider->setRange (0.05, 0.5);
     pitchDecaySlider->setValue (audioProcessor.pitchDecay);
     pitchDecaySlider->setBounds (margin + w * 0.5f, y, w * 0.45f, 50);
     pitchDecaySlider->setTextBoxStyle (juce::Slider::TextBoxBelow, true, 50, 18);
     pitchDecaySlider->addListener (this);
     addAndMakeVisible (pitchDecaySlider);
+
+    auto* pitchDecLabel = new juce::Label ("pitchDecLbl", "Decay");
+    pitchDecLabel->setBounds (margin + w * 0.5f, y - 14, w * 0.45f, 12);
+    pitchDecLabel->setFont (juce::FontOptions (10));
+    pitchDecLabel->setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (pitchDecLabel);
+
+    auto* pitchLabel = new juce::Label ("pitchLbl", "Pitch");
+    pitchLabel->setBounds (margin, y - 14, w * 0.45f, 12);
+    pitchLabel->setFont (juce::FontOptions (10));
+    pitchLabel->setJustificationType (juce::Justification::centred);
+    addAndMakeVisible (pitchLabel);
 
     y = 160;
     auto quarterW = w * 0.22f;
@@ -152,9 +164,11 @@ void KikAudioProcessorEditor::paint (juce::Graphics& g)
     if (waveform.empty()) return;
     
     auto w = getWidth() - 30;
-    auto h = 60;
+    auto h = 70;
     auto y = 440;
     auto margin = 15;
+    auto meterX = margin + w + 8;
+    auto meterW = 12;
     
     g.setColour (juce::Colours::darkgrey);
     g.fillRect ((float)margin, (float)y, (float)w, (float)h);
@@ -170,10 +184,35 @@ void KikAudioProcessorEditor::paint (juce::Graphics& g)
         g.fillRect ((float)(margin + i), (float)yPos, 1.0f, 1.0f);
     }
     
+    g.setColour (juce::Colours::grey);
+    g.setFont (juce::FontOptions (8));
+    float dbY = y + 8;
+    g.drawFittedText ("0", margin, (int)dbY, 20, 10, juce::Justification::left, 1);
+    g.drawFittedText ("-6", margin, (int)(y + h*0.33f), 20, 10, juce::Justification::left, 1);
+    g.drawFittedText ("-12", margin, (int)(y + h*0.55f), 25, 10, juce::Justification::left, 1);
+    g.drawFittedText ("-24", margin, (int)(y + h*0.8f), 25, 10, juce::Justification::left, 1);
+    
+    g.setColour (juce::Colours::darkgrey);
+    g.fillRect ((float)meterX, (float)y, (float)meterW, (float)h);
+    
     float peak = audioProcessor.peakLevel;
-    float peakY = y + h - (int)(peak * h);
-    g.setColour (juce::Colours::orange);
-    g.fillRect ((float)(margin + w + 5), (float)peakY, 8.0f, 3.0f);
+    float peakY = y + h - (peak * h);
+    
+    if (peak >= 1.0f)
+        g.setColour (juce::Colours::red);
+    else if (peak >= 0.9f)
+        g.setColour (juce::Colours::orange);
+    else
+        g.setColour (juce::Colours::yellow);
+    
+    g.fillRect ((float)meterX, (float)peakY, (float)meterW, (float)3);
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        float lineY = y + h * (1.0f - (float)i * 0.25f);
+        g.setColour (juce::Colours::grey.withAlpha (0.5f));
+        g.drawLine ((float)meterX, lineY, (float)(meterX + meterW), lineY, 1.0f);
+    }
 }
 
 void KikAudioProcessorEditor::resized() {}

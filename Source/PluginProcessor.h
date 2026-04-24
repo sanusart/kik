@@ -48,7 +48,7 @@ public:
     
     WaveformSource currentSource = sine;
     float pitch = 200.0f;
-    float pitchDecay = 0.05f;
+    float pitchDecay = 0.23f;
 
     float ampAttack = 0.001f;
     float ampDecay = 0.3f;
