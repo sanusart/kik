@@ -14,7 +14,8 @@
 class KikAudioProcessorEditor : public juce::AudioProcessorEditor,
                               public juce::Slider::Listener,
                               public juce::ComboBox::Listener,
-                              public juce::Button::Listener
+                              public juce::Button::Listener,
+                              private juce::Timer
 {
 public:
     KikAudioProcessorEditor (KikAudioProcessor&);
@@ -27,7 +28,11 @@ public:
     void buttonClicked (juce::Button* button) override;
 
 private:
+    void timerCallback() override;
+
     KikAudioProcessor& audioProcessor;
+    std::unique_ptr<juce::WebBrowserComponent> browser;
+    bool useWebView = false;
 
     juce::Slider* pitchStartSlider = nullptr;
     juce::Slider* pitchDecaySlider = nullptr;

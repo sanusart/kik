@@ -12,6 +12,11 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="AxTXZR" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <GROUP id="{UI1234567890}" name="Resources">
+      <FILE id="UIHTML" name="index.html" compile="0" resource="1" file="Resources/ui/index.html"/>
+      <FILE id="UIJS" name="ui.js" compile="0" resource="1" file="Resources/ui/ui.js"/>
+      <FILE id="UICSS" name="styles.css" compile="0" resource="1" file="Resources/ui/styles.css"/>
+    </GROUP>
   </MAINGROUP>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
