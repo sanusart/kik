@@ -6,11 +6,17 @@
     let meterLevel = 0;
 
     function init() {
+        console.log('init called');
         bindControls();
+        console.log('bindControls done');
         setupTransport();
+        console.log('setupTransport done');
         setupSliders();
+        console.log('setupSliders done');
         setupWaveform();
+        console.log('setupWaveform done');
         requestInitValues();
+        console.log('requestInitValues done');
     }
 
     function bindControls() {
@@ -19,78 +25,95 @@
         controls.bpm = document.getElementById('bpm');
         controls.waveform = document.getElementById('waveform');
         
-        controls.pitch = document.getElementById('pitch');
-        controls.pitchVal = document.getElementById('pitch-val');
-        controls.pitchDecay = document.getElementById('pitch-decay');
-        controls.pitchDecayVal = document.getElementById('pitch-decay-val');
-        
-        controls.ampAttack = document.getElementById('amp-attack');
-        controls.ampAttackVal = document.getElementById('amp-attack-val');
-        controls.ampDecay = document.getElementById('amp-decay');
-        controls.ampDecayVal = document.getElementById('amp-decay-val');
-        controls.ampSustain = document.getElementById('amp-sustain');
-        controls.ampSustainVal = document.getElementById('amp-sustain-val');
-        controls.ampRelease = document.getElementById('amp-release');
-        controls.ampReleaseVal = document.getElementById('amp-release-val');
-        
-        controls.drive = document.getElementById('drive');
-        controls.driveVal = document.getElementById('drive-val');
-        controls.color = document.getElementById('color');
-        controls.colorVal = document.getElementById('color-val');
-        controls.click = document.getElementById('click');
-        controls.clickVal = document.getElementById('click-val');
-        controls.depth = document.getElementById('depth');
-        controls.depthVal = document.getElementById('depth-val');
-        
-        controls.gain = document.getElementById('gain');
-        controls.gainVal = document.getElementById('gain-val');
-        
         controls.previewCanvas = document.getElementById('preview-canvas');
         controls.meterFill = document.getElementById('meter-fill');
         controls.meterVal = document.getElementById('meter-val');
     }
 
     function setupTransport() {
-        controls.kickBtn.addEventListener('click', function() {
+        controls.kickBtn.addEventListener('mousedown', function() {
             sendMessage('trigger', true);
         });
 
         controls.loopBtn.addEventListener('click', function() {
             this.classList.toggle('active');
-            sendMessage('loop', this.classList.contains('active'));
+            sendMessage('loop', this.classList.contains('active') ? 1 : 0);
         });
 
         controls.bpm.addEventListener('change', function() {
             sendMessage('bpm', parseFloat(this.value));
         });
 
-        controls.waveform.addEventListener('change', function() {
-            sendMessage('waveform', parseInt(this.value));
+        const waveOptions = controls.waveform.querySelectorAll('.wave-option');
+        waveOptions.forEach(function(opt) {
+            opt.addEventListener('click', function() {
+                waveOptions.forEach(function(o) { o.classList.remove('active'); });
+                this.classList.add('active');
+                sendMessage('waveform', parseInt(this.dataset.val));
+            });
         });
     }
 
-    function setupSliders() {
-        const sliderConfigs = [
-            { slider: controls.pitch, display: controls.pitchVal, format: v => v + ' Hz', param: 'pitch' },
-            { slider: controls.pitchDecay, display: controls.pitchDecayVal, format: v => v.toFixed(2), param: 'pitchDecay' },
-            { slider: controls.ampAttack, display: controls.ampAttackVal, format: v => v.toFixed(3), param: 'ampAttack' },
-            { slider: controls.ampDecay, display: controls.ampDecayVal, format: v => v.toFixed(2), param: 'ampDecay' },
-            { slider: controls.ampSustain, display: controls.ampSustainVal, format: v => v.toFixed(2), param: 'ampSustain' },
-            { slider: controls.ampRelease, display: controls.ampReleaseVal, format: v => v.toFixed(2), param: 'ampRelease' },
-            { slider: controls.drive, display: controls.driveVal, format: v => v.toFixed(2), param: 'drive' },
-            { slider: controls.color, display: controls.colorVal, format: v => v.toFixed(2), param: 'color' },
-            { slider: controls.click, display: controls.clickVal, format: v => v.toFixed(2), param: 'click' },
-            { slider: controls.depth, display: controls.depthVal, format: v => v.toFixed(2), param: 'depth' },
-            { slider: controls.gain, display: controls.gainVal, format: v => v.toFixed(2), param: 'gain' }
-        ];
+    const activeKnobs = {};
 
-        sliderConfigs.forEach(function(config) {
-            config.slider.addEventListener('input', function() {
-                var value = parseFloat(this.value);
-                config.display.textContent = config.format(value);
-                sendMessage(config.param, value);
+    function setupSliders() {
+        function setupKnob(id, min, max, param, formatFn) {
+            const container = document.getElementById(id);
+            if (!container) return;
+            const dial = container.querySelector('.knob-dial');
+            const displayId = 'val-' + id.replace('knob-', '');
+            const display = document.getElementById(displayId);
+            let currentVal = min;
+
+            const updateVisuals = (val) => {
+                currentVal = Math.max(min, Math.min(max, val));
+                const percentage = (currentVal - min) / (max - min);
+                const angle = -140 + (percentage * 280); 
+                if (dial) dial.style.transform = `rotate(${angle}deg)`;
+                if (display) display.textContent = formatFn(currentVal);
+            };
+
+            let isDragging = false;
+            let startY = 0;
+            let startVal = 0;
+
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startY = e.clientY;
+                startVal = currentVal;
+                document.body.style.cursor = 'ns-resize';
             });
-        });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaY = startY - e.clientY;
+                const deltaVal = (deltaY / 120) * (max - min); 
+                updateVisuals(startVal + deltaVal);
+                sendMessage(param, currentVal);
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    document.body.style.cursor = 'default';
+                }
+            });
+
+            activeKnobs[param] = updateVisuals;
+        }
+
+        setupKnob('knob-pitch', 40, 250, 'pitch', v => Math.round(v).toString() + ' Hz');
+        setupKnob('knob-pitch-decay', 0.05, 0.5, 'pitchDecay', v => v.toFixed(2));
+        setupKnob('knob-amp-attack', 0, 0.05, 'ampAttack', v => v.toFixed(3));
+        setupKnob('knob-amp-decay', 0.05, 1, 'ampDecay', v => v.toFixed(2));
+        setupKnob('knob-amp-sustain', 0, 1, 'ampSustain', v => v.toFixed(2));
+        setupKnob('knob-amp-release', 0.05, 1, 'ampRelease', v => v.toFixed(2));
+        setupKnob('knob-drive', 0.5, 3, 'drive', v => v.toFixed(2));
+        setupKnob('knob-color', 0, 1, 'color', v => v.toFixed(2));
+        setupKnob('knob-click', 0, 1, 'click', v => v.toFixed(2));
+        setupKnob('knob-click-pitch', 500, 8000, 'clickPitch', v => Math.round(v).toString());
+        setupKnob('knob-depth', 0, 1, 'depth', v => v.toFixed(2));
+        setupKnob('knob-gain', 0, 1.5, 'gain', v => v.toFixed(2));
     }
 
     function setupWaveform() {
@@ -150,72 +173,58 @@
         ctx.globalAlpha = 1;
     }
 
+    window.juce = window.juce || {};
+
     function sendMessage(param, value) {
-        if (typeof juce !== 'undefined' && juce.updateParameter) {
-            juce.updateParameter(param, value);
+        console.log('sendMessage: ' + param + '=' + value);
+        var sent = false;
+        if (typeof window.__JUCE__ !== 'undefined' && window.__JUCE__.getNativeFunction) {
+            try { 
+                window.__JUCE__.getNativeFunction('JUCE_CALLBACK')(param, value); 
+                sent = true; 
+            } catch(e) {
+                console.error(e);
+            }
+        }
+        if (!sent && typeof window.Juce !== 'undefined' && window.Juce.getNativeFunction) {
+            try { 
+                window.Juce.getNativeFunction('JUCE_CALLBACK')(param, value); 
+                sent = true; 
+            } catch(e) {
+                console.error(e);
+            }
+        }
+        if (!sent) {
+            window.__paramQueue__ = window.__paramQueue__ || [];
+            window.__paramQueue__.push({param: param, value: value});
         }
     }
 
     function requestInitValues() {
-        if (typeof juce !== 'undefined' && juce.requestInit) {
-            juce.requestInit();
-        }
+        sendMessage('__init__', 0);
     }
 
     function requestMeterLevel() {
-        if (typeof juce !== 'undefined' && juce.requestMeter) {
-            juce.requestMeter();
-        }
+        // C++ backend pushes meter automatically, no need to request manually
     }
 
     window.updateUI = function(data) {
         if (data.waveform !== undefined) {
-            controls.waveform.value = data.waveform;
+            const waveOptions = controls.waveform.querySelectorAll('.wave-option');
+            waveOptions.forEach(function(o) {
+                if (parseInt(o.dataset.val) === data.waveform) {
+                    o.classList.add('active');
+                } else {
+                    o.classList.remove('active');
+                }
+            });
         }
-        if (data.pitch !== undefined) {
-            controls.pitch.value = data.pitch;
-            controls.pitchVal.textContent = data.pitch.toFixed(0) + ' Hz';
-        }
-        if (data.pitchDecay !== undefined) {
-            controls.pitchDecay.value = data.pitchDecay;
-            controls.pitchDecayVal.textContent = data.pitchDecay.toFixed(2);
-        }
-        if (data.ampAttack !== undefined) {
-            controls.ampAttack.value = data.ampAttack;
-            controls.ampAttackVal.textContent = data.ampAttack.toFixed(3);
-        }
-        if (data.ampDecay !== undefined) {
-            controls.ampDecay.value = data.ampDecay;
-            controls.ampDecayVal.textContent = data.ampDecay.toFixed(2);
-        }
-        if (data.ampSustain !== undefined) {
-            controls.ampSustain.value = data.ampSustain;
-            controls.ampSustainVal.textContent = data.ampSustain.toFixed(2);
-        }
-        if (data.ampRelease !== undefined) {
-            controls.ampRelease.value = data.ampRelease;
-            controls.ampReleaseVal.textContent = data.ampRelease.toFixed(2);
-        }
-        if (data.drive !== undefined) {
-            controls.drive.value = data.drive;
-            controls.driveVal.textContent = data.drive.toFixed(2);
-        }
-        if (data.color !== undefined) {
-            controls.color.value = data.color;
-            controls.colorVal.textContent = data.color.toFixed(2);
-        }
-        if (data.click !== undefined) {
-            controls.click.value = data.click;
-            controls.clickVal.textContent = data.click.toFixed(2);
-        }
-        if (data.depth !== undefined) {
-            controls.depth.value = data.depth;
-            controls.depthVal.textContent = data.depth.toFixed(2);
-        }
-        if (data.gain !== undefined) {
-            controls.gain.value = data.gain;
-            controls.gainVal.textContent = data.gain.toFixed(2);
-        }
+        Object.keys(activeKnobs).forEach(param => {
+            if (data[param] !== undefined) {
+                activeKnobs[param](data[param]);
+            }
+        });
+
         if (data.bpm !== undefined) {
             controls.bpm.value = data.bpm;
         }
@@ -238,7 +247,9 @@
         percentage = Math.max(0, Math.min(100, percentage));
         
         meterFill.style.height = percentage + '%';
-        meterLabel.textContent = dbValue > -60 ? dbValue.toFixed(1) + ' dB' : '-∞ dB';
+        
+        var text = dbValue > -60 ? dbValue.toFixed(1) : '-INF';
+        meterLabel.textContent = text.padStart(5, ' ') + ' dB';
         
         meterFill.classList.remove('red', 'orange', 'yellow');
         if (dbValue >= -0.5) {
@@ -250,5 +261,9 @@
         }
     };
 
-    document.addEventListener('DOMContentLoaded', init);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 })();

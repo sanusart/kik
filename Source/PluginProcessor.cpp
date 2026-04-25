@@ -124,107 +124,109 @@ bool KikAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) cons
 }
 #endif
 
-void KikAudioProcessor::generateKick (float* output, int outputSamples, double sampleRate)
+double KikAudioProcessor::polyBlep(double t, double dt)
 {
-    int kickLength = (int)(0.05 * sampleRate);
+    if (t < dt) {
+        t /= dt;
+        return t + t - t * t - 1.0;
+    }
+    else if (t > 1.0 - dt) {
+        t = (t - 1.0) / dt;
+        return t * t + t + t + 1.0;
+    }
+    return 0.0;
+}
+
+void KikAudioProcessor::generatePreview (float* output, int outputSamples, double sampleRate)
+{
+    int kickLength = (int)(0.5 * sampleRate); // 500ms preview max
     if (kickLength > outputSamples) kickLength = outputSamples;
     
-    float phase = 0.0f;
-    float subPhase = 0.0f;
-    float pitchEnv = pitch;
-    float pitchEnd = pitch * 0.2f;
-    float pitchDecayAmount = pitchDecay * 10.0f;
-    float fadeInSamples = std::min (30.0f, (float)kickLength * 0.1f);
-    float fadeOutStart = (float)kickLength * 0.85f;
-    float clickPhase = 0.0f;
+    double pPhase = 0.0;
+    double pSubPhase = 0.0;
+    double pClickPhase = 0.0;
+    double pPitchEnv = pitch;
+    double pitchEnd = pitch * 0.2;
+    double pitchDecayAmount = pitchDecay * 10.0;
 
     for (int i = 0; i < kickLength; ++i)
     {
-        float envPosition = (float)i / (float)kickLength;
-        pitchEnv = pitch * std::exp (-pitchDecayAmount * envPosition);
-        pitchEnv = std::max (pitchEnv, pitchEnd);
-        float phaseIncrement = pitchEnv / (float)sampleRate;
+        double timeInSeconds = (double)i / sampleRate;
+        pPitchEnv = pitch * std::exp (-pitchDecayAmount * timeInSeconds * 10.0);
+        pPitchEnv = std::max (pPitchEnv, pitchEnd);
+        double phaseIncrement = pPitchEnv / sampleRate;
 
-        float ampEnv = 0.0f;
-        float attackSamples = ampAttack * sampleRate;
-        float decaySamples = ampDecay * sampleRate;
-        float releaseSamples = ampRelease * sampleRate;
+        double ampEnv = 0.0;
+        double attackSecs = std::max(0.001f, ampAttack);
+        double decaySecs = std::max(0.001f, ampDecay);
+        double releaseSecs = std::max(0.001f, ampRelease);
 
-        if (i < 10)
-            ampEnv = (float)i / 10.0f;
-        else if (i < attackSamples + 10)
+        if (timeInSeconds < attackSecs)
+            ampEnv = timeInSeconds / attackSecs;
+        else if (timeInSeconds < attackSecs + decaySecs)
         {
-            ampEnv = (float)(i - 10) / attackSamples;
-            ampEnv = std::min (ampEnv, 1.0f);
+            double decayEnv = 1.0 - (timeInSeconds - attackSecs) / decaySecs;
+            ampEnv = decayEnv + ampSustain * (1.0 - decayEnv);
         }
-        else if (i < attackSamples + 10 + decaySamples)
-        {
-            float decayEnv = 1.0f - (float)(i - attackSamples - 10) / decaySamples;
-            ampEnv = decayEnv + ampSustain * (1.0f - decayEnv);
-        }
-        else if (i >= kickLength - releaseSamples)
-            ampEnv = ampSustain * (float)(kickLength - i) / releaseSamples;
-        else
+        else if (timeInSeconds < attackSecs + decaySecs + 0.1) // Fake 100ms hold for preview
             ampEnv = ampSustain;
+        else
+            ampEnv = ampSustain * std::max(0.0, 1.0 - (timeInSeconds - (attackSecs + decaySecs + 0.1)) / releaseSecs);
 
-        float sampleVal = 0.0f;
-        float fundamental = std::sin (phase * 2.0f * juce::MathConstants<float>::pi);
+        double sampleVal = 0.0;
+        double fundamental = std::sin (pPhase * 2.0 * juce::MathConstants<double>::pi);
 
         switch (currentSource)
         {
-            case sine: sampleVal = fundamental; break;
-            case triangle: sampleVal = 2.0f * std::abs (2.0f * (phase - std::floor (phase + 0.5f))) - 1.0f; break;
-            case saw: sampleVal = 2.0f * (phase - std::floor (phase + 0.5f)); break;
-            case square: sampleVal = phase < 0.5f ? 1.0f : -1.0f; break;
-            case loaded:
+            case sine: 
+                sampleVal = fundamental; 
+                break;
+            case triangle: 
             {
-                int wSamples = 0;
-                bool hasWave = false;
-                { juce::ScopedLock lock (loadedWaveformLock); hasWave = hasLoadedWaveform; wSamples = loadedWaveform.getNumSamples(); }
-                if (hasWave && wSamples > 0)
-                {
-                    int sampleIdx = std::min ((int)((float)i / kickLength * wSamples), wSamples - 1);
-                    { juce::ScopedLock lock (loadedWaveformLock); sampleVal = loadedWaveform.getSample (0, sampleIdx); }
-                }
-                else sampleVal = fundamental;
+                sampleVal = 2.0 * std::abs (2.0 * (pPhase - std::floor (pPhase + 0.5))) - 1.0; 
+                // PolyBLAMP not fully needed for preview, standard triangle is okay
                 break;
             }
+            case saw: 
+                sampleVal = 2.0 * pPhase - 1.0;
+                sampleVal -= polyBlep(pPhase, phaseIncrement);
+                break;
+            case square: 
+                sampleVal = pPhase < 0.5 ? 1.0 : -1.0;
+                sampleVal += polyBlep(pPhase, phaseIncrement);
+                sampleVal -= polyBlep(std::fmod(pPhase + 0.5, 1.0), phaseIncrement);
+                break;
+            case loaded:
+                sampleVal = fundamental;
+                break;
         }
 
-        float harmonic2 = std::sin (phase * 4.0f * juce::MathConstants<float>::pi);
-        float harmonic3 = std::sin (phase * 6.0f * juce::MathConstants<float>::pi);
-        float harmonic4 = std::sin (phase * 8.0f * juce::MathConstants<float>::pi);
-        sampleVal = sampleVal * (1.0f - color * 0.7f) + harmonic2 * color * 0.3f + harmonic3 * color * color * 0.15f + harmonic4 * color * color * color * 0.1f;
+        double harmonic2 = std::sin (pPhase * 4.0 * juce::MathConstants<double>::pi);
+        double harmonic3 = std::sin (pPhase * 6.0 * juce::MathConstants<double>::pi);
+        sampleVal = sampleVal * (1.0 - color * 0.7) + harmonic2 * color * 0.5 + harmonic3 * color * color * 0.2;
 
-        float subOsc = std::sin (subPhase * 2.0f * juce::MathConstants<float>::pi);
-        sampleVal = sampleVal + subOsc * depth * 0.3f;
+        double subOsc = std::sin (pSubPhase * 2.0 * juce::MathConstants<double>::pi);
+        sampleVal += subOsc * depth * 0.5;
 
-        float fadeIn = (i < fadeInSamples) ? (float)i / fadeInSamples : 1.0f;
-        sampleVal *= fadeIn;
-
-        float fadeOut = (i > fadeOutStart) ? 1.0f - (float)(i - fadeOutStart) / (kickLength - fadeOutStart) : 1.0f;
-        sampleVal *= fadeOut;
-
-        float clickVal = 0.0f;
-        float clickDuration = (float)kickLength * 0.02f;
-        if (click > 0.0f && i < clickDuration)
+        double clickVal = 0.0;
+        double clickDuration = 0.01; // 10ms max duration for the click envelope
+        if (click > 0.0f && timeInSeconds < clickDuration)
         {
-            float clickEnv = 1.0f - (float)i / clickDuration;
-            float clickFreq = (1500.0f + 2500.0f * clickEnv) / (float)sampleRate;
-            clickPhase += clickFreq;
-            if (clickPhase >= 1.0f) clickPhase -= 1.0f;
-            clickVal = click * std::sin (clickPhase * 2.0f * juce::MathConstants<float>::pi) * clickEnv * 0.5f;
+            double clickEnv = std::exp(-timeInSeconds * 600.0); 
+            double noise = ((double)rand() / RAND_MAX) * 2.0 - 1.0;
+            pClickPhase += clickPitch / sampleRate;
+            if (pClickPhase >= 1.0) pClickPhase -= 1.0;
+            double clickSine = std::sin(pClickPhase * 2.0 * juce::MathConstants<double>::pi);
+            clickVal = click * (clickSine * 0.7 + noise * 0.3) * clickEnv * 0.5;
         }
 
-        sampleVal = sampleVal * drive + clickVal;
-        output[i] = sampleVal * ampEnv * gain;
-        
-        if (std::abs (output[i]) > peakLevel) peakLevel = std::abs (output[i]);
+        sampleVal = std::tanh((sampleVal + clickVal) * drive);
+        output[i] = (float)(sampleVal * ampEnv * gain);
 
-        phase += phaseIncrement;
-        if (phase >= 1.0f) phase -= 1.0f;
-        subPhase += phaseIncrement * 0.5f;
-        if (subPhase >= 1.0f) subPhase -= 1.0f;
+        pPhase += phaseIncrement;
+        if (pPhase >= 1.0) pPhase -= 1.0;
+        pSubPhase += phaseIncrement * 0.5;
+        if (pSubPhase >= 1.0) pSubPhase -= 1.0;
     }
 
     for (int i = kickLength; i < outputSamples; ++i) output[i] = 0.0f;
@@ -237,42 +239,137 @@ void KikAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    float outputPeak = 0.0f;
-
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
     auto numSamples = buffer.getNumSamples();
     if (numSamples <= 0) return;
-    auto sampleRate = getSampleRate();
+    double sampleRate = getSampleRate();
     if (sampleRate <= 0) return;
 
     peakLevel *= 0.95f;
     
-    auto triggerInterval = (int)(60.0 / bpm * sampleRate);
+    int triggerInterval = (int)(60.0 / bpm * sampleRate);
     
     if (loopEnabled)
     {
         samplesSinceTrigger += numSamples;
         if (samplesSinceTrigger >= triggerInterval)
         {
-            samplesSinceTrigger = 0;
+            samplesSinceTrigger -= triggerInterval;
             shouldTrigger = true;
         }
     }
     
-    if (!shouldTrigger) return;
-    shouldTrigger = false;
+    if (shouldTrigger) {
+        shouldTrigger = false;
+        isPlaying = true;
+        currentSampleIndex = 0;
+        currentPhase = 0.0;
+        subPhase = 0.0;
+        clickPhase = 0.0;
+    }
     
+    if (!isPlaying) return;
+    
+    float outputPeak = 0.0f;
+    juce::HeapBlock<float> tempBlock (numSamples);
+    
+    double pitchEnd = pitch * 0.2;
+    double pitchDecayAmount = pitchDecay * 10.0;
+    double attackSecs = std::max(0.001f, ampAttack);
+    double decaySecs = std::max(0.001f, ampDecay);
+    double releaseSecs = std::max(0.001f, ampRelease);
+    double clickDuration = 0.01;
+
+    for (int i = 0; i < numSamples; ++i)
     {
-        juce::HeapBlock<float> tempBlock (numSamples);
-        generateKick (tempBlock.get(), numSamples, sampleRate);
-        for (int channel = 0; channel < totalNumOutputChannels; ++channel)
+        double timeInSeconds = (double)currentSampleIndex / sampleRate;
+        
+        // Check if envelope has finished
+        if (timeInSeconds > attackSecs + decaySecs + releaseSecs) {
+            isPlaying = false;
+            tempBlock[i] = 0.0f;
+            continue;
+        }
+        
+        double currentPitchEnv = pitch * std::exp (-pitchDecayAmount * timeInSeconds * 10.0);
+        currentPitchEnv = std::max (currentPitchEnv, pitchEnd);
+        double phaseIncrement = currentPitchEnv / sampleRate;
+
+        double ampEnv = 0.0;
+        if (timeInSeconds < attackSecs)
+            ampEnv = timeInSeconds / attackSecs;
+        else if (timeInSeconds < attackSecs + decaySecs)
         {
-            auto* channelData = buffer.getWritePointer (channel);
-            for (int i = 0; i < numSamples; ++i)
-            {
+            double decayEnv = 1.0 - (timeInSeconds - attackSecs) / decaySecs;
+            ampEnv = decayEnv + ampSustain * (1.0 - decayEnv);
+        }
+        else
+            ampEnv = ampSustain * std::max(0.0, 1.0 - (timeInSeconds - (attackSecs + decaySecs)) / releaseSecs);
+
+        double sampleVal = 0.0;
+        double fundamental = std::sin (currentPhase * 2.0 * juce::MathConstants<double>::pi);
+
+        switch (currentSource)
+        {
+            case sine: 
+                sampleVal = fundamental; 
+                break;
+            case triangle: 
+                sampleVal = 2.0 * std::abs (2.0 * (currentPhase - std::floor (currentPhase + 0.5))) - 1.0; 
+                break;
+            case saw: 
+                sampleVal = 2.0 * currentPhase - 1.0;
+                sampleVal -= polyBlep(currentPhase, phaseIncrement);
+                break;
+            case square: 
+                sampleVal = currentPhase < 0.5 ? 1.0 : -1.0;
+                sampleVal += polyBlep(currentPhase, phaseIncrement);
+                sampleVal -= polyBlep(std::fmod(currentPhase + 0.5, 1.0), phaseIncrement);
+                break;
+            case loaded:
+                sampleVal = fundamental;
+                break;
+        }
+
+        double harmonic2 = std::sin (currentPhase * 4.0 * juce::MathConstants<double>::pi);
+        double harmonic3 = std::sin (currentPhase * 6.0 * juce::MathConstants<double>::pi);
+        sampleVal = sampleVal * (1.0 - color * 0.7) + harmonic2 * color * 0.5 + harmonic3 * color * color * 0.2;
+
+        double subOsc = std::sin (subPhase * 2.0 * juce::MathConstants<double>::pi);
+        sampleVal += subOsc * depth * 0.5;
+
+        double clickVal = 0.0;
+        if (click > 0.0f && timeInSeconds < clickDuration)
+        {
+            double clickEnv = std::exp(-timeInSeconds * 600.0); 
+            double noise = juce::Random::getSystemRandom().nextFloat() * 2.0 - 1.0;
+            clickPhase += clickPitch / sampleRate;
+            if (clickPhase >= 1.0) clickPhase -= 1.0;
+            double clickSine = std::sin(clickPhase * 2.0 * juce::MathConstants<double>::pi);
+            clickVal = click * (clickSine * 0.7 + noise * 0.3) * clickEnv * 0.5;
+        }
+
+        // Tanh Saturation for Warm Overdrive
+        sampleVal = std::tanh((sampleVal + clickVal) * drive);
+        
+        tempBlock[i] = (float)(sampleVal * ampEnv * gain);
+
+        currentPhase += phaseIncrement;
+        if (currentPhase >= 1.0) currentPhase -= 1.0;
+        subPhase += phaseIncrement * 0.5;
+        if (subPhase >= 1.0) subPhase -= 1.0;
+        
+        currentSampleIndex++;
+    }
+
+    for (int channel = 0; channel < totalNumOutputChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+        for (int i = 0; i < numSamples; ++i)
+        {
+            if (isPlaying || tempBlock[i] != 0.0f) {
                 channelData[i] = tempBlock[i];
                 float absVal = std::abs (channelData[i]);
                 if (absVal > outputPeak) outputPeak = absVal;
@@ -287,5 +384,5 @@ bool KikAudioProcessor::hasEditor() const { return true; }
 juce::AudioProcessorEditor* KikAudioProcessor::createEditor() { return new KikAudioProcessorEditor (*this); }
 void KikAudioProcessor::getStateInformation (juce::MemoryBlock& destData) {}
 void KikAudioProcessor::setStateInformation (const void* data, int sizeInBytes) { juce::ignoreUnused (data, sizeInBytes); }
-void KikAudioProcessor::updatePreview() { previewWaveform.resize (2048); generateKick (previewWaveform.data(), 2048, 44100.0); previewDirty = false; }
+void KikAudioProcessor::updatePreview() { previewWaveform.resize (2048); generatePreview (previewWaveform.data(), 2048, 44100.0); previewDirty = false; }
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new KikAudioProcessor(); }

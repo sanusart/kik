@@ -57,6 +57,7 @@ public:
 
     float drive = 1.0f;
     float click = 0.0f;
+    float clickPitch = 4000.0f;
     float color = 0.5f;
     float depth = 0.5f;
     float gain = 1.0f;
@@ -73,13 +74,21 @@ public:
     void updatePreview();
     
 private:
-    void generateKick (float* output, int numSamples, double sampleRate);
+    void generatePreview (float* output, int numSamples, double sampleRate);
+    double polyBlep (double t, double dt);
 
     juce::AudioBuffer<float> loadedWaveform;
     bool hasLoadedWaveform = false;
     juce::CriticalSection loadedWaveformLock;
 
     bool isPrepared = false;
+    
+    // DSP State Variables
+    bool isPlaying = false;
+    double currentPhase = 0.0;
+    double subPhase = 0.0;
+    double clickPhase = 0.0;
+    int currentSampleIndex = 0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KikAudioProcessor)
 };

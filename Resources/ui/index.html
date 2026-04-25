@@ -22,110 +22,55 @@
 
         <section class="waveform-section">
             <label>WAVEFORM</label>
-            <select id="waveform">
-                <option value="1">Sine</option>
-                <option value="2">Triangle</option>
-                <option value="3">Saw</option>
-                <option value="4">Square</option>
-                <option value="5">Loaded</option>
-            </select>
+            <div class="waveform-selector" id="waveform">
+                <div class="wave-option active" data-val="1">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 C7,2 10,2 12,12 C14,22 17,22 22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="wave-option" data-val="2">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L7,3 L17,21 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="wave-option" data-val="3">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L12,3 L12,21 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="wave-option" data-val="4">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L2,4 L12,4 L12,20 L22,20 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+            </div>
         </section>
 
-        <div class="controls-grid">
-            <section class="control-group">
-                <h2>PITCH</h2>
-                <div class="slider-group">
-                    <input type="range" id="pitch" min="40" max="250" value="200">
-                    <label class="value-display" id="pitch-val">200 Hz</label>
-                </div>
+        <div class="controls-panel">
+            <section class="hardware-row">
+                <div class="knob-group"><label>PITCH</label><div class="knob-container" id="knob-pitch"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-pitch" class="value-display">200</span></div>
+                <div class="knob-group"><label>P. DECAY</label><div class="knob-container" id="knob-pitch-decay"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-pitch-decay" class="value-display">0.23</span></div>
+                <div class="knob-group"><label>ATTACK</label><div class="knob-container" id="knob-amp-attack"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-attack" class="value-display">0.00</span></div>
+                <div class="knob-group"><label>DECAY</label><div class="knob-container" id="knob-amp-decay"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-decay" class="value-display">0.30</span></div>
+                <div class="knob-group"><label>SUSTAIN</label><div class="knob-container" id="knob-amp-sustain"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-sustain" class="value-display">0.00</span></div>
+                <div class="knob-group"><label>RELEASE</label><div class="knob-container" id="knob-amp-release"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-release" class="value-display">0.20</span></div>
             </section>
 
-            <section class="control-group">
-                <h2>DECAY</h2>
-                <div class="slider-group">
-                    <input type="range" id="pitch-decay" min="0.05" max="0.5" step="0.01" value="0.23">
-                    <label class="value-display" id="pitch-decay-val">0.23</label>
-                </div>
+            <section class="hardware-row">
+                <div class="knob-group"><label>DRIVE</label><div class="knob-container" id="knob-drive"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-drive" class="value-display">1.00</span></div>
+                <div class="knob-group"><label>COLOR</label><div class="knob-container" id="knob-color"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-color" class="value-display">0.50</span></div>
+                <div class="knob-group"><label>CLICK LVL</label><div class="knob-container" id="knob-click"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-click" class="value-display">0.00</span></div>
+                <div class="knob-group"><label>CLICK PITCH</label><div class="knob-container" id="knob-click-pitch"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-click-pitch" class="value-display">4000</span></div>
+                <div class="knob-group"><label>SUB DEPTH</label><div class="knob-container" id="knob-depth"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-depth" class="value-display">0.50</span></div>
             </section>
 
-            <section class="control-group full-width">
-                <h2>AMPLITUDE</h2>
-                <div class="slider-row">
-                    <div class="slider-item">
-                        <input type="range" id="amp-attack" min="0" max="0.05" step="0.001" value="0.001">
-                        <label>ATK</label>
-                        <span class="value-display" id="amp-attack-val">0.001</span>
+            <section class="hardware-row output-row">
+                <div class="knob-group master-gain"><label>GAIN</label><div class="knob-container master-knob" id="knob-gain"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-gain" class="value-display">1.00</span></div>
+                
+                <div class="waveform-display" id="waveform-preview">
+                    <canvas id="preview-canvas" width="330" height="80"></canvas>
+                </div>
+                
+                <div class="meter-section">
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="meter-fill"></div>
                     </div>
-                    <div class="slider-item">
-                        <input type="range" id="amp-decay" min="0.05" max="1" step="0.01" value="0.3">
-                        <label>DEC</label>
-                        <span class="value-display" id="amp-decay-val">0.30</span>
-                    </div>
-                    <div class="slider-item">
-                        <input type="range" id="amp-sustain" min="0" max="1" step="0.01" value="0">
-                        <label>SUS</label>
-                        <span class="value-display" id="amp-sustain-val">0.00</span>
-                    </div>
-                    <div class="slider-item">
-                        <input type="range" id="amp-release" min="0.05" max="1" step="0.01" value="0.2">
-                        <label>REL</label>
-                        <span class="value-display" id="amp-release-val">0.20</span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="control-group">
-                <h2>DRIVE</h2>
-                <div class="slider-group">
-                    <input type="range" id="drive" min="0.5" max="3" step="0.01" value="1">
-                    <label class="value-display" id="drive-val">1.00</label>
-                </div>
-            </section>
-
-            <section class="control-group">
-                <h2>COLOR</h2>
-                <div class="slider-group">
-                    <input type="range" id="color" min="0" max="1" step="0.01" value="0.5">
-                    <label class="value-display" id="color-val">0.50</label>
-                </div>
-            </section>
-
-            <section class="control-group">
-                <h2>CLICK</h2>
-                <div class="slider-group">
-                    <input type="range" id="click" min="0" max="1" step="0.01" value="0">
-                    <label class="value-display" id="click-val">0.00</label>
-                </div>
-            </section>
-
-            <section class="control-group">
-                <h2>DEPTH</h2>
-                <div class="slider-group">
-                    <input type="range" id="depth" min="0" max="1" step="0.01" value="0.5">
-                    <label class="value-display" id="depth-val">0.50</label>
-                </div>
-            </section>
-
-            <section class="control-group full-width">
-                <h2>GAIN</h2>
-                <div class="slider-group">
-                    <input type="range" id="gain" min="0" max="1.5" step="0.01" value="1">
-                    <label class="value-display" id="gain-val">1.00</label>
+                    <span class="meter-label" id="meter-val">-∞</span>
                 </div>
             </section>
         </div>
-
-        <section class="output-section">
-            <div class="waveform-display" id="waveform-preview">
-                <canvas id="preview-canvas" width="450" height="80"></canvas>
-            </div>
-            <div class="meter-section">
-                <div class="meter-bar">
-                    <div class="meter-fill" id="meter-fill"></div>
-                </div>
-                <span class="meter-label" id="meter-val">-∞ dB</span>
-            </div>
-        </section>
     </div>
 
     <script src="ui.js"></script>
