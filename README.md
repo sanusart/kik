@@ -2,6 +2,10 @@
 
 A JUCE-based VST3/AU plugin for synthesizing kicks and bass drums.
 
+## Download
+
+You can download the latest version of KIK Synth from the [Releases Page](https://github.com/sanusart/kik/releases).
+
 ## Features
 
 - **Waveform Selection**: Sine, Triangle, Sawtooth, Square

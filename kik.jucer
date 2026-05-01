@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="CtZ52I" name="kik" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="sanusart"
+              companyWebsite="www.sanusart.com" pluginManufacturerCode="Sanu"
+              pluginManufacturer="sanusart" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
+              pluginVST3Category="Drum">
   <MAINGROUP id="eca66u" name="kik">
     <GROUP id="{2852CDD0-5B69-DAD3-B48A-BD77C1A24895}" name="Source">
       <FILE id="VJ7GQw" name="PluginProcessor.cpp" compile="1" resource="0"
@@ -45,7 +48,7 @@
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="kik"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="kik"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="kik" enablePluginBinaryCopyStep="1"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>

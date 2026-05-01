@@ -28,7 +28,8 @@ juce::String makeInitJS(KikAudioProcessor& ap)
     js += "depth:" + juce::String(ap.depth) + ",";
     js += "gain:" + juce::String(ap.gain) + ",";
     js += "bpm:" + juce::String(ap.bpm) + ",";
-    js += "loopEnabled:" + juce::String(ap.loopEnabled ? "true" : "false");
+    js += "loopEnabled:" + juce::String(ap.loopEnabled ? "true" : "false") + ",";
+    js += "isStandalone:" + juce::String((ap.wrapperType == juce::AudioProcessor::wrapperType_Standalone) ? "true" : "false");
     js += "}); }";
     return js;
 }
@@ -66,10 +67,10 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
     setSize (520, 560);
     
     File exeFile = File::getSpecialLocation (File::invokedExecutableFile);
-    String exePath = exeFile.getFullPathName();
-    String resourcesPath = exePath.replace("/MacOS/kik", "/Resources");
+    File resourcesDir = exeFile.getParentDirectory().getParentDirectory().getChildFile("Resources");
+    String resourcesPath = resourcesDir.getFullPathName();
     
-    File htmlFile = File(resourcesPath + "/index.html");
+    File htmlFile = resourcesDir.getChildFile("index.html");
     
     if (htmlFile.existsAsFile()) {
         auto self = this;
@@ -102,10 +103,11 @@ KikAudioProcessorEditor::KikAudioProcessorEditor (KikAudioProcessor& p)
             .withNativeFunction ("JUCE_CALLBACK", 
                 [self](const juce::Array<juce::var>& args, auto completion) {
                     Logger::writeToLog ("KIK: native callback args=" + String(args.size()));
-                    if (args.size() >= 1) {
+                    if (args.size() >= 2) {
                         auto param = args[0].toString();
-                        Logger::writeToLog ("KIK: param=" + param);
-                        if (args.size() >= 2) {
+                        if (param == "openURL") {
+                            juce::URL(args[1].toString()).launchInDefaultBrowser();
+                        } else {
                             auto value = (double)args[1];
                             self->onParameterChange(param, value);
                         }
@@ -152,6 +154,10 @@ void KikAudioProcessorEditor::timerCallback()
         if (webViewReady) {
             sendMeterToWeb();
             sendWaveformToWeb();
+            
+            if (audioProcessor.midiTriggered.exchange(false)) {
+                browser->evaluateJavascript("if(window.blinkKick) blinkKick();", nullptr);
+            }
         }
         
         // Always poll for pending parameters

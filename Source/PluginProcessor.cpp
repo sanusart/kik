@@ -261,6 +261,15 @@ void KikAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mi
         }
     }
     
+    
+    for (const auto metadata : midiMessages)
+    {
+        if (metadata.getMessage().isNoteOn()) {
+            shouldTrigger = true;
+            midiTriggered = true;
+        }
+    }
+
     if (shouldTrigger) {
         shouldTrigger = false;
         isPlaying = true;

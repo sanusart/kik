@@ -13,6 +13,8 @@
         console.log('setupTransport done');
         setupSliders();
         console.log('setupSliders done');
+        setupAbout();
+        console.log('setupAbout done');
         setupWaveform();
         console.log('setupWaveform done');
         requestInitValues();
@@ -28,6 +30,24 @@
         controls.previewCanvas = document.getElementById('preview-canvas');
         controls.meterFill = document.getElementById('meter-fill');
         controls.meterVal = document.getElementById('meter-val');
+        
+        controls.aboutBtn = document.getElementById('about-btn');
+        controls.aboutOverlay = document.getElementById('about-overlay');
+        controls.closeAbout = document.getElementById('close-about');
+        controls.websiteLink = document.getElementById('website-link');
+    }
+
+    function setupAbout() {
+        controls.aboutBtn.addEventListener('click', () => controls.aboutOverlay.classList.remove('hidden'));
+        controls.closeAbout.addEventListener('click', () => controls.aboutOverlay.classList.add('hidden'));
+        controls.aboutOverlay.addEventListener('click', (e) => {
+            if (e.target === controls.aboutOverlay) controls.aboutOverlay.classList.add('hidden');
+        });
+
+        controls.websiteLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            sendMessage('openURL', 'https://www.sanusart.com');
+        });
     }
 
     function setupTransport() {
@@ -231,6 +251,21 @@
         if (data.loopEnabled !== undefined) {
             controls.loopBtn.classList.toggle('active', data.loopEnabled);
         }
+        if (data.isStandalone !== undefined) {
+            if (data.isStandalone) {
+                document.body.classList.add('is-standalone');
+            } else {
+                document.body.classList.remove('is-standalone');
+            }
+        }
+    };
+
+    window.blinkKick = function() {
+        if (!controls.kickBtn) return;
+        controls.kickBtn.classList.add('midi-active');
+        setTimeout(() => {
+            controls.kickBtn.classList.remove('midi-active');
+        }, 120);
     };
 
     window.updateWaveform = function(data) {
