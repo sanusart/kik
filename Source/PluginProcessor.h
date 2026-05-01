@@ -73,6 +73,8 @@ public:
     bool previewDirty = true;
     void updatePreview();
     
+    std::atomic<bool> midiTriggered { false };
+    
 private:
     void generatePreview (float* output, int numSamples, double sampleRate);
     double polyBlep (double t, double dt);

@@ -12,10 +12,12 @@
             <h1>KIK SYNTH</h1>
             <div class="transport-controls">
                 <button id="kick-btn" class="btn-transport kick">KICK</button>
-                <button id="loop-btn" class="btn-transport loop">LOOP</button>
-                <div class="bpm-control">
-                    <label>BPM</label>
-                    <input type="number" id="bpm" min="80" max="250" value="120">
+                <div class="standalone-only" style="display: flex; align-items: center; gap: 8px;">
+                    <button id="loop-btn" class="btn-transport loop">LOOP</button>
+                    <div class="bpm-control">
+                        <label>BPM</label>
+                        <input type="number" id="bpm" min="80" max="250" value="120">
+                    </div>
                 </div>
             </div>
         </header>

@@ -231,6 +231,21 @@
         if (data.loopEnabled !== undefined) {
             controls.loopBtn.classList.toggle('active', data.loopEnabled);
         }
+        if (data.isStandalone !== undefined) {
+            if (data.isStandalone) {
+                document.body.classList.add('is-standalone');
+            } else {
+                document.body.classList.remove('is-standalone');
+            }
+        }
+    };
+
+    window.blinkKick = function() {
+        if (!controls.kickBtn) return;
+        controls.kickBtn.classList.add('midi-active');
+        setTimeout(() => {
+            controls.kickBtn.classList.remove('midi-active');
+        }, 120);
     };
 
     window.updateWaveform = function(data) {
