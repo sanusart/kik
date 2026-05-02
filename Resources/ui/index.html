@@ -10,80 +10,273 @@
     <div class="plugin-container">
         <header class="plugin-header">
             <div class="header-left">
-                <h1>KIK SYNTH</h1>
+                <h1>KIK</h1>
+                <div class="preset-selector">
+                    <select id="preset-select" aria-label="Preset">
+                        <option value="" selected>Choose preset…</option>
+                        <option value="0">Default</option>
+                        <option value="1">Sub Layer</option>
+                        <option value="2">Club Kick</option>
+                        <option value="3">Tight Sidechain</option>
+                        <option value="4">Trap Long</option>
+                        <option value="5">Punch &amp; Click</option>
+                        <option value="6">Warm House</option>
+                        <option value="7">Distorted Slam</option>
+                        <option value="8">DnB Roller</option>
+                        <option value="9">Lo-Fi Thick</option>
+                        <option value="10">Big Room</option>
+                        <option value="11">Rock Punch</option>
+                        <option value="12">Mix Ready</option>
+                    </select>
+                </div>
+                <div class="external-presets">
+                    <button type="button" id="save-btn" class="btn-text" title="Save settings to a .kik file">Save…</button>
+                    <button type="button" id="load-btn" class="btn-text" title="Load settings from a .kik file">Load…</button>
+                </div>
             </div>
             <div class="header-right">
                 <div class="transport-controls">
-                    <button id="kick-btn" class="btn-transport kick">KICK</button>
-                    <div class="standalone-only" style="display: flex; align-items: center; gap: 8px;">
-                        <button id="loop-btn" class="btn-transport loop">LOOP</button>
+                    <button type="button" id="kick-btn" class="btn-transport kick">Trig</button>
+                    <div class="standalone-only standalone-row">
+                        <button type="button" id="loop-btn" class="btn-transport loop" aria-pressed="false">Loop</button>
                         <div class="bpm-control">
-                            <label>BPM</label>
+                            <label for="bpm">BPM</label>
                             <input type="number" id="bpm" min="80" max="250" value="120">
                         </div>
                     </div>
                 </div>
-                <button id="about-btn" class="btn-icon about">
-                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/></svg>
+                <button type="button" id="about-btn" class="btn-icon about" aria-label="About">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z"/></svg>
                 </button>
             </div>
         </header>
 
-        <section class="waveform-section">
-            <label>WAVEFORM</label>
-            <div class="waveform-selector" id="waveform">
-                <div class="wave-option active" data-val="1">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 C7,2 10,2 12,12 C14,22 17,22 22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="wave-option" data-val="2">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L7,3 L17,21 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="wave-option" data-val="3">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L12,3 L12,21 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-                <div class="wave-option" data-val="4">
-                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L2,4 L12,4 L12,20 L22,20 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </div>
-            </div>
-        </section>
-
-        <div class="controls-panel">
-            <section class="hardware-row">
-                <div class="knob-group"><label>PITCH</label><div class="knob-container" id="knob-pitch"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-pitch" class="value-display">200</span></div>
-                <div class="knob-group"><label>P. DECAY</label><div class="knob-container" id="knob-pitch-decay"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-pitch-decay" class="value-display">0.23</span></div>
-                <div class="knob-group"><label>ATTACK</label><div class="knob-container" id="knob-amp-attack"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-attack" class="value-display">0.00</span></div>
-                <div class="knob-group"><label>DECAY</label><div class="knob-container" id="knob-amp-decay"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-decay" class="value-display">0.30</span></div>
-                <div class="knob-group"><label>SUSTAIN</label><div class="knob-container" id="knob-amp-sustain"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-sustain" class="value-display">0.00</span></div>
-                <div class="knob-group"><label>RELEASE</label><div class="knob-container" id="knob-amp-release"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-amp-release" class="value-display">0.20</span></div>
-            </section>
-
-            <section class="hardware-row">
-                <div class="knob-group"><label>DRIVE</label><div class="knob-container" id="knob-drive"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-drive" class="value-display">1.00</span></div>
-                <div class="knob-group"><label>COLOR</label><div class="knob-container" id="knob-color"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-color" class="value-display">0.50</span></div>
-                <div class="knob-group"><label>CLICK LVL</label><div class="knob-container" id="knob-click"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-click" class="value-display">0.00</span></div>
-                <div class="knob-group"><label>CLICK PITCH</label><div class="knob-container" id="knob-click-pitch"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-click-pitch" class="value-display">4000</span></div>
-                <div class="knob-group"><label>SUB DEPTH</label><div class="knob-container" id="knob-depth"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-depth" class="value-display">0.50</span></div>
-            </section>
-
-            <section class="hardware-row output-row">
-                <div class="knob-group master-gain"><label>GAIN</label><div class="knob-container master-knob" id="knob-gain"><div class="knob-dial"><div class="knob-pointer"></div></div></div><span id="val-gain" class="value-display">1.00</span></div>
-                
+        <main class="content-well">
+            <section class="strip strip-scope" aria-label="Preview">
                 <div class="waveform-display" id="waveform-preview">
-                    <canvas id="preview-canvas" width="330" height="80"></canvas>
+                    <canvas id="preview-canvas" width="492" height="74"></canvas>
                 </div>
-                
-                <div class="meter-section">
-                    <div class="meter-bar">
-                        <div class="meter-fill" id="meter-fill"></div>
+                <div class="wave-toolbar">
+                    <span class="strip-title-inline">Oscillator</span>
+                    <div class="waveform-selector" id="waveform" role="radiogroup" aria-label="Waveform">
+                        <button type="button" class="wave-option active" data-val="1" role="radio" aria-checked="true" title="Sine">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 C7,2 10,2 12,12 C14,22 17,22 22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button type="button" class="wave-option" data-val="2" role="radio" aria-checked="false" title="Triangle">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L7,3 L17,21 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button type="button" class="wave-option" data-val="3" role="radio" aria-checked="false" title="Saw">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L12,3 L12,21 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <button type="button" class="wave-option" data-val="4" role="radio" aria-checked="false" title="Square">
+                            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" d="M2,12 L2,4 L12,4 L12,20 L22,20 L22,12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
                     </div>
-                    <span class="meter-label" id="meter-val">-∞</span>
                 </div>
             </section>
-        </div>
-        
+
+            <section class="strip" aria-label="Pitch">
+                <div class="strip-title-row">
+                    <h2 class="strip-title">Pitch <span class="strip-hint">key &amp; fine Hz</span></h2>
+                    <span class="key-tuner-readout mono" id="key-tuner-readout" title="A4 = 440 Hz. Nudge Start for fine tuning.">—</span>
+                </div>
+                <div class="key-tuner" title="A4 = 440 Hz. Use Start slider for fine Hz after picking a note.">
+                    <div class="key-tuner-row">
+                    <div class="key-tuner-octave" role="group" aria-label="Octave">
+                        <button type="button" class="key-oct-btn" id="key-oct-down" aria-label="Lower octave">−</button>
+                        <span class="key-oct-value mono" id="key-oct-display" data-value="3" aria-live="polite" title="Octave (0 = sub)">3</span>
+                        <button type="button" class="key-oct-btn" id="key-oct-up" aria-label="Higher octave">+</button>
+                    </div>
+                    <div class="key-note-rail" role="radiogroup" aria-label="Root note (chromatic)">
+                        <button type="button" class="key-note-btn" data-note="0" aria-label="C">C</button>
+                        <button type="button" class="key-note-btn" data-note="1" aria-label="C sharp">C♯</button>
+                        <button type="button" class="key-note-btn" data-note="2" aria-label="D">D</button>
+                        <button type="button" class="key-note-btn" data-note="3" aria-label="D sharp">D♯</button>
+                        <button type="button" class="key-note-btn" data-note="4" aria-label="E">E</button>
+                        <button type="button" class="key-note-btn" data-note="5" aria-label="F">F</button>
+                        <button type="button" class="key-note-btn" data-note="6" aria-label="F sharp">F♯</button>
+                        <button type="button" class="key-note-btn key-note-btn--active" data-note="7" aria-label="G">G</button>
+                        <button type="button" class="key-note-btn" data-note="8" aria-label="G sharp">G♯</button>
+                        <button type="button" class="key-note-btn" data-note="9" aria-label="A">A</button>
+                        <button type="button" class="key-note-btn" data-note="10" aria-label="A sharp">A♯</button>
+                        <button type="button" class="key-note-btn" data-note="11" aria-label="B">B</button>
+                    </div>
+                    </div>
+                </div>
+                <div class="strip-grid-2">
+                    <div class="param-slider">
+                        <label for="slider-pitch">Start</label>
+                        <input type="range" id="slider-pitch" min="40" max="250" step="1" value="196">
+                        <span class="value-readout mono" id="val-pitch">196 Hz</span>
+                    </div>
+                    <div class="param-slider">
+                        <label for="slider-pitch-decay">Sweep</label>
+                        <input type="range" id="slider-pitch-decay" min="0.05" max="0.5" step="0.01" value="0.23">
+                        <span class="value-readout mono" id="val-pitch-decay">0.23</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="strip strip-adsr" aria-label="Amplitude envelope">
+                <div class="strip-title-row">
+                    <h2 class="strip-title">Envelope</h2>
+                    <span class="strip-title-hint">A→D→S→R</span>
+                </div>
+                <div class="adsr-preview">
+                    <svg class="adsr-svg" viewBox="0 0 200 44" preserveAspectRatio="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="adsr-fill-grad" x1="0" y1="1" x2="0" y2="0" gradientUnits="objectBoundingBox">
+                                <stop offset="0%" stop-color="#3dcad9" stop-opacity="0.07"/>
+                                <stop offset="55%" stop-color="#5bdbee" stop-opacity="0.16"/>
+                                <stop offset="100%" stop-color="#5bdbee" stop-opacity="0.26"/>
+                            </linearGradient>
+                        </defs>
+                        <rect class="adsr-frame" x="6" y="4" width="188" height="32" rx="4"/>
+                        <rect id="adsr-bg-a" class="adsr-phase-band" x="8" y="5" width="0" height="30" rx="2"/>
+                        <rect id="adsr-bg-d" class="adsr-phase-band" x="8" y="5" width="0" height="30" rx="2"/>
+                        <rect id="adsr-bg-s" class="adsr-phase-band" x="8" y="5" width="0" height="30" rx="2"/>
+                        <rect id="adsr-bg-r" class="adsr-phase-band" x="8" y="5" width="0" height="30" rx="2"/>
+                        <line class="adsr-grid-mid" x1="8" y1="21" x2="192" y2="21"/>
+                        <line class="adsr-baseline" x1="8" y1="35" x2="192" y2="35"/>
+                        <path id="adsr-fill-path" class="adsr-fill-path" fill="url(#adsr-fill-grad)" d=""/>
+                        <path id="adsr-stroke-path" class="adsr-stroke-path" fill="none" d=""/>
+                        <line id="adsr-sustain-line" class="adsr-sustain-line" x1="8" y1="35" x2="8" y2="35" opacity="0"/>
+                        <line id="adsr-edge-a" class="adsr-edge" x1="8" y1="5" x2="8" y2="35"/>
+                        <line id="adsr-edge-d" class="adsr-edge" x1="8" y1="5" x2="8" y2="35"/>
+                        <line id="adsr-edge-s" class="adsr-edge" x1="8" y1="5" x2="8" y2="35"/>
+                        <line id="adsr-edge-r" class="adsr-edge" x1="8" y1="5" x2="8" y2="35"/>
+                    </svg>
+                </div>
+                <div class="adsr-controls" role="group" aria-label="ADSR">
+                    <div class="adsr-slot">
+                        <label for="slider-amp-attack" title="Attack — time to peak">A</label>
+                        <input type="range" id="slider-amp-attack" min="0" max="0.05" step="0.0005" value="0.001"
+                            aria-label="Attack time"
+                            title="Time to reach peak level">
+                        <span class="value-readout mono adsr-val" id="val-amp-attack">1.0 ms</span>
+                    </div>
+                    <div class="adsr-slot">
+                        <label for="slider-amp-decay" title="Decay — peak to sustain">D</label>
+                        <input type="range" id="slider-amp-decay" min="0.05" max="1" step="0.01" value="0.30"
+                            aria-label="Decay time"
+                            title="Peak to sustain level">
+                        <span class="value-readout mono adsr-val" id="val-amp-decay">300 ms</span>
+                    </div>
+                    <div class="adsr-slot">
+                        <label for="slider-amp-sustain" title="Sustain — held level">S</label>
+                        <input type="range" id="slider-amp-sustain" min="0" max="1" step="0.01" value="0"
+                            aria-label="Sustain level"
+                            title="Held level after decay">
+                        <span class="value-readout mono adsr-val" id="val-amp-sustain">0%</span>
+                    </div>
+                    <div class="adsr-slot">
+                        <label for="slider-amp-release" title="Release — tail after note off">R</label>
+                        <input type="range" id="slider-amp-release" min="0.05" max="1" step="0.01" value="0.20"
+                            aria-label="Release time"
+                            title="Tail after note off">
+                        <span class="value-readout mono adsr-val" id="val-amp-release">200 ms</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="strip" aria-label="Tone">
+                <h2 class="strip-title">Tone <span class="strip-hint">saturation, weight &amp; filters</span></h2>
+                <div class="knob-row-single">
+                    <div class="knob-group">
+                        <label>Drive</label>
+                        <div class="knob-container" id="knob-drive"><div class="knob-dial"><div class="knob-pointer"></div></div></div>
+                        <span id="val-drive" class="value-readout mono">1.00</span>
+                    </div>
+                    <div class="knob-group">
+                        <label>Color</label>
+                        <div class="knob-container" id="knob-color"><div class="knob-dial"><div class="knob-pointer"></div></div></div>
+                        <span id="val-color" class="value-readout mono">0.50</span>
+                    </div>
+                    <div class="knob-group">
+                        <label>Morph</label>
+                        <div class="knob-container" id="knob-wave-morph"><div class="knob-dial"><div class="knob-pointer"></div></div></div>
+                        <span id="val-wave-morph" class="value-readout mono">0.00</span>
+                    </div>
+                    <div class="knob-group">
+                        <label>Sub</label>
+                        <div class="knob-container" id="knob-depth"><div class="knob-dial"><div class="knob-pointer"></div></div></div>
+                        <span id="val-depth" class="value-readout mono">0.50</span>
+                    </div>
+                    <div class="knob-group">
+                        <label>HP</label>
+                        <div class="knob-container" id="knob-hp"><div class="knob-dial"><div class="knob-pointer"></div></div></div>
+                        <span id="val-hp" class="value-readout mono">35 Hz</span>
+                    </div>
+                    <div class="knob-group">
+                        <label>LP</label>
+                        <div class="knob-container" id="knob-lp"><div class="knob-dial"><div class="knob-pointer"></div></div></div>
+                        <span id="val-lp" class="value-readout mono">20 kHz</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="strip" aria-label="Click">
+                <h2 class="strip-title">Click</h2>
+                <div class="strip-grid-2">
+                    <div class="param-slider">
+                        <label for="slider-click">Level</label>
+                        <input type="range" id="slider-click" min="0" max="1" step="0.01" value="0">
+                        <span class="value-readout mono" id="val-click">0.00</span>
+                    </div>
+                    <div class="param-slider">
+                        <label for="slider-click-pitch">Bright</label>
+                        <input type="range" id="slider-click-pitch" min="500" max="8000" step="10" value="4000">
+                        <span class="value-readout mono" id="val-click-pitch">4000</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="strip strip-last strip-output" aria-label="Output">
+                <div class="strip-title-row">
+                    <h2 class="strip-title">Output</h2>
+                    <span class="strip-title-hint">master level</span>
+                </div>
+                <div class="output-card">
+                    <div class="output-main-row">
+                        <div class="output-meter" aria-label="Peak output level">
+                            <div class="output-meter-caption">Peak</div>
+                            <div class="output-meter-lane">
+                                <div class="output-meter-track">
+                                    <span class="output-meter-rail-labels" aria-hidden="true">
+                                        <span>−60</span><span>−45</span><span>−30</span><span>−15</span><span>0</span>
+                                    </span>
+                                    <div class="output-meter-shell">
+                                        <div class="output-meter-ticks" aria-hidden="true"></div>
+                                        <div class="meter-bar output-meter-bar">
+                                            <div class="meter-fill" id="meter-fill"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="output-db mono" id="meter-val" aria-live="polite">−∞ dB</span>
+                            </div>
+                        </div>
+                        <div class="output-enhancer-knob">
+                            <label class="output-enhancer-label">Enhance</label>
+                            <div class="knob-container knob-container--enhancer" id="knob-enhancer" title="Dynamic enhancer - increases loudness without distortion (drag vertically)">
+                                <div class="knob-dial"><div class="knob-pointer"></div></div>
+                            </div>
+                            <span class="value-readout mono output-enhancer-val" id="val-enhancer">0.00</span>
+                        </div>
+                        <div class="output-gain-knob">
+                            <label class="output-gain-label">Gain</label>
+                            <div class="knob-container knob-container--gain" id="knob-gain" title="Output gain (drag vertically)">
+                                <div class="knob-dial"><div class="knob-pointer"></div></div>
+                            </div>
+                            <span class="value-readout mono output-gain-val" id="val-gain">1.00</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
         <div id="about-overlay" class="overlay hidden">
             <div class="overlay-content">
-                <button id="close-about" class="btn-close">&times;</button>
+                <button type="button" id="close-about" class="btn-close">&times;</button>
                 <div class="about-logo">KIK</div>
                 <h2>KIK SYNTH v1.0</h2>
                 <p>A professional percussive synthesizer designed for modern electronic music production.</p>

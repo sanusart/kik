@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="CtZ52I" name="kik" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="sanusart"
+<JUCERPROJECT id="CtZ52I" name="Kik" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="Sanus artificium"
               companyWebsite="www.sanusart.com" pluginManufacturerCode="Sanu"
-              pluginManufacturer="sanusart" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
-              pluginVST3Category="Drum">
-  <MAINGROUP id="eca66u" name="kik">
+              pluginManufacturer="Sanus artificium" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
+              pluginVST3Category="Drum" version="1.1.0" bundleIdentifier="com.sanusart.kik"
+              pluginCode="San1" aaxIdentifier="com.sanusart.kik">
+  <MAINGROUP id="eca66u" name="Kik">
     <GROUP id="{2852CDD0-5B69-DAD3-B48A-BD77C1A24895}" name="Source">
       <FILE id="VJ7GQw" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
