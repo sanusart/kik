@@ -11,8 +11,15 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+/** Web UI root fills the editor; keep these in sync with any layout change. */
+namespace KikEditorLayout
+{
+    inline constexpr int width = 820;
+    inline constexpr int height = 520;
+}
+
 class KikAudioProcessorEditor : public juce::AudioProcessorEditor,
-                              private juce::Timer
+                               private juce::Timer
 {
 public:
     KikAudioProcessorEditor (KikAudioProcessor&);
@@ -28,12 +35,20 @@ private:
     std::unique_ptr<juce::WebBrowserComponent> browser;
     bool useWebView = false;
     bool webViewReady = false;
-    bool bridgeInjected = false;
+
+    uint32_t lastSeenPresetStateVersion = 0;
+
+    std::unique_ptr<juce::FileChooser> chooser;
+    juce::String resourcesPath;
 
     void onParameterChange (const juce::String& param, double value);
+    void saveStateToFile();
+    void loadStateToFile();
     void sendInitValuesToWeb();
     void sendMeterToWeb();
     void sendWaveformToWeb();
+    void sendEventToWeb (const juce::String& eventName, const juce::var& data);
+    void handleJuceEvent (const juce::var& eventData);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KikAudioProcessorEditor)
 };
